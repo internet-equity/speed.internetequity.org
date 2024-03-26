@@ -1,0 +1,9 @@
+= OpenSpeedTest HTML
+
+This directory stands in for the OpenSpeedTest HTML and other static assets which this server (CloudFront CDN) serves to the client.
+
+Populate this directory with the `index.html`, `assets/*`, _etc._ of the https://github.com/openspeedtest/Speed-Test/tree/main/[OpenSpeedTest].
+
+Terraform configuration including `s3_bucket_object.tf` will provision an S3 bucket and upload the contents of this directory to it (excluding extraneous files – such as this one!).
+
+(Alternatively, configure an alternative source of the speed test's static assets with a Terraform variable.)
