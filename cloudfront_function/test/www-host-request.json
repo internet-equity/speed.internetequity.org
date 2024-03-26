@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "context": {
+    "eventType": "viewer-request"
+  },
+  "viewer": {
+    "ip": "1.2.3.4"
+  },
+  "request": {
+    "method": "GET",
+    "uri": "/index.html",
+    "headers": {
+      "host": {
+        "value": "www.beadchallenge.org"
+      }
+    },
+    "cookies": {},
+    "querystring": {
+      "hi": {
+        "value": "here",
+        "multiValue": [
+          {
+            "value": "here"
+          },
+          {
+            "value": "there"
+          }
+        ]
+      },
+      "bye": {
+        "value": "here",
+        "multiValue": [
+          {
+            "value": "here"
+          },
+          {
+            "value": "there"
+          }
+        ]
+      }
+    }
+  }
+}
