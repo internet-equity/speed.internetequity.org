@@ -99,7 +99,7 @@
     .navbar-dropdown:hover .dropdown-menu {
         visibility: visible;
     }
-    .beadchallenge {
+    .instructions {
         background-color: rgb(243, 243, 243);
         text-align: center;
         font-size:14px;
@@ -110,7 +110,7 @@
         margin-left: 10px;
         margin-bottom: 10px;
     }
-    .beadchallenge-banner {
+    .instructions-banner {
         text-shadow: 5px 5px 15px #cccccc;
     }
     @keyframes updown {
@@ -143,11 +143,10 @@
         content: "\25B2"; /* Unicode character for "minus" sign (-) */
     }
     .content {
+        max-width: 1200px;
+        margin: 0 auto 25px auto;
         padding: 0 18px;
         background-color: white;
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.2s ease-out;
     }
     p {
         font-family: Roboto-Medium, Roboto;
@@ -229,6 +228,9 @@
         justify-content: center;
         margin-bottom: 10px;
     }
+    .Credits {
+        margin: 7px;
+    }
     .title {
 	display: none;
     }
@@ -283,6 +285,22 @@
     </div>
     </nav>
   <script type="text/javascript">
+      var saveTestDataBEADChallenge;
+      var stdQueryData;
+
+      function getApiUri () {
+          switch (window.location.hostname) {
+              case '':
+              case '0.0.0.0':
+              case 'localhost':
+              case '127.0.0.1':
+                  return null;
+              default:
+                  return window.location.protocol + '//api.' + window.location.host + '/speedtest/';
+          }
+      }
+  </script>
+  <script type="text/javascript">
 /*
      Official Website : https://OpenSpeedTest.COM | Email: support@openspeedtest.com
      Developed by : Vishnu | https://Vishnu.Pro | Email : me@vishnu.pro 
@@ -305,9 +323,6 @@
 
      If you have any Questions, ideas or Comments Please Send it via -> https://go.openspeedtest.com/SendMessage
 */
-
-    var saveTestDataBEADChallenge;
-    var stdQueryData;
 
      // Add or Remove Server --> Automatically choose the one with the least latency
     var openSpeedTestServerList = [
@@ -366,9 +381,9 @@
         var setHTTPReq = true;
 
     // Save Data to a Database
-        var saveData = true;
-        var saveDataURL = "https://83rfidkjpe.execute-api.us-east-2.amazonaws.com/save?data=";
+        var saveDataURL = getApiUri();
         var OpenSpeedTestdb = saveDataURL;
+        var saveData = saveDataURL != null;
 
     // Allow user to change the default 12 seconds test duration
     // Pass "Stress" or "S" as a URL Parameter.
@@ -475,59 +490,35 @@ please get in touch with support@openspeedtest.com.
   </div>
 
   <object style="visibility:hidden" id="OpenSpeedTest-UI" data="assets/images/app.svg" type="image/svg+xml"></object>
-  <div class="beadchallenge collapsible">
-    <h2 title="¿Internet malo o poco confiable? Realice una prueba de velocidad para medir la calidad del servicio de Internet de su hogar. Completar una prueba de velocidad en tres días separados ayudará a garantizar que su vecindario reciba una parte justa de los fondos para mejoras de banda ancha." 
-        class="beadchallenge-banner">
-        <img style="height: 18px;" src="https://beadchallenge.vercel.app/dot_red.png" />
-        Unreliable or poor internet? Take a speed test to measure the quality of your household’s
-        internet service. Completing a speed test on three separate days will help ensure your
-	neighborhood gets its fair share of funding for broadband improvements.
+
+  <div class="instructions">
+    <h2 title="¿Internet malo o poco confiable? Realice una prueba de velocidad para medir la calidad del servicio de Internet de su hogar." 
+        class="instructions-banner">
+        Slow or unreliable Internet? Take a speed test to measure the quality of your household’s
+        Internet service.
     </h2>
-    <h2><i>(Click <u style="color: red">here</u> for instructions and to submit your information)</i></h2>
   </div>
   <div class="content">
-    <p title="Realice una prueba de velocidad para medir la calidad del servicio de Internet de su hogar. Al completar una prueba de velocidad con esta herramienta, estás participando en el Proceso de Desafío del Programa de Equidad, Acceso e Implementación de Banda Ancha (“BEAD”). Incluya su dirección o código postal y su dirección de correo electrónico cuando envíe sus resultados."
-       style="margin-left: 20px; margin-right:20px; text-align:justify;text-justify: inter-word;">
-        Take a speed test to measure the quality of your household’s internet service.
-        By completing a speed test using this tool, you’re participating in 
-        the Broadband Equity, Access and Deployment (“BEAD”) Program Challenge Process.
-        Please include your address or zip code, and your email address when you submit your results.
-        <br><br>
-        <b>What is a speed test?</b> A speed test measures the speed and quality of your internet at a point in time.
-        <br><br>
-        <b>Why should I take a speed test?</b> Taking a speed test will help ensure that the 
-        Illinois Broadband Map accurately shows where there is and is not quality internet available to residents.
-        <br><br>
-        <b>What is this tool?</b>  By completing a speed test using this tool and sharing your location information,
-        the Internet Equity Initiative will submit internet quality information on your behalf.
-        <br><br>
-        <b>What happens after I submit my speed test?</b> Completing and submitting a speed test with your address
-        is step 1! You’ll need to complete two more speed tests on two separate days to complete the process.
-	To help you out, we will send you email reminders to complete your second and third speed tests.
-	<br><br><u>
-	<b>What is the subscribed speed and how to find it?</b>
-        People undertaking a BEAD challenge must indicate the speed tier of their Internet subscription.
-        This is a specific range of download and upload speeds offered by an Internet Service Provider (ISP) under a particular plan.
-        ISPs typically offer various plans, each with different maximum speeds for downloading and uploading data.
-        To find your internet speed tier, check your latest bill, your ISP's app, or your service agreement.
-	</u><b><br><br>
-	The University of Chicago’s Internet Equity Initiative will be analyzing this 
-	internet performance data on behalf of our partners.
-	By submitting my information I agree to allow University of Chicago Internet Equity Initiative to
-	analyze these data and share with the state broadband office and the ISP I am challenging.
-	<br>We are committed to your privacy and the data from this website will never be sold.
-	</b>
-	<br><br>
-	<b>Speed Test Best Practices:</b>
-	<br> * Take your speed test close to a router.
-	<br> * Plug into a router using an ethernet cord, if you have one.
-	<br> * You can take your speed test during peak usage time (in the evening), but avoid times with others in your households are streaming videos or gaming.
-	<br><br>
-        Questions? Reach out to IEI Team at <b>internetequity@uchicago.edu</b>. 
-        <br><br>
-        Thanks for your help improving internet access in Illinois!
-        <br>&nbsp; &nbsp; &nbsp; - Internet Equity Initiative Team
+    <p><b>What is a speed test?</b>&emsp13; A speed test measures the speed and quality of your Internet service at a point in time.</p>
+    <p><b>Why should I take a speed test?</b>&emsp13; Taking a speed test may help explain your Internet experience, by identifying the limits of &ndash; and any problems with &ndash; your Internet service.</p>
+    <p><b>Speed Test Best Practices</b></p>
+    <ul>
+        <li>Take your speed test close to a router.</li>
+        <li>Plug into a router using an ethernet cord, if you have one.</li>
+        <li>You may take your speed test during peak usage time &ndash; (generally in the evening) &ndash; but, avoid those times when others in your household may be streaming videos or gaming.</li>
+    </ul>
+
+    <p>
+    The University of Chicago’s Internet Equity Initiative will record the Internet performance results of
+    this test for the purposes of the Initiative's research and on behalf of our partners.
+	By performing this speed test I agree to allow the University of Chicago Internet Equity Initiative to
+	analyze this data and share it with our partners.
     </p>
+    <p>We are committed to your privacy and the data from this website will never be sold.</p>
+    <p>Questions? Reach out to the IEI Team at <a href="mailto:internetequity@uchicago.edu">internetequity@uchicago.edu</a>.</p>
+
+    <!-- example form -->
+    <!--
     <div class="centered">
 	<select name="orgtype" id="orgtype"
 	       style="margin-left:15px; margin-right:15px; width: 460px">
@@ -575,6 +566,7 @@ please get in touch with support@openspeedtest.com.
 	       oninput = 'this.value = this.value.replace(/[,]/g, " ")'>
         </input>
     </div>
+    -->
 
     <!--div class="centered">
         <button class="getloc" title="Obtener Mi Ubicación" onclick="getSTULocation()" style="margin-right: 10px; width: 450px">Get My Location &#x25BC;</button>
@@ -582,6 +574,8 @@ please get in touch with support@openspeedtest.com.
     <!--div class="centered">
         <textarea id="attest_address" cols="40" rows="3" placeholder="Street Address (please check your address to ensure your house and street number are correct)." style="width: 450px"></textarea>
     </div-->
+
+    <!--
     <div class="centered">
 	<input type="text" id="attest_unitnumber" cols="10" rows="1" placeholder="Unit #"
                style="width: 100px; margin-left:12px; margin-right: 10px;"
@@ -596,11 +590,15 @@ please get in touch with support@openspeedtest.com.
                oninput = 'this.value = this.value.replace(/[,]/g, " ")'>
         </input>
     </div>
+    -->
+
     <!--div class="centered">
 	<div style="width: 460px; text-align:justify;text-justify: inter-word; background-color: lightgray">
 		<p style="margin-left: 10px; margin-right:10px"><em><b>Please Note:</b> The "Get My Location" buttom works best with the Chrome browser, and it may not be 100% accurate, make sure you have the Location Services enabled. You can also copy the address from <a href="https://il-bead-speed-test-map.netlify.app/" target="_blank">here</a>, and paste it at the "Street Address" field (or enter it manually). Make sure you include the unit number (important).</p></em>
 	</div>
     </div-->
+
+    <!--
     <div class="centered" style="margin-top:30px; text-align:center;">
         <p 
           title="Velocidad medida (Mbps):">
@@ -632,7 +630,10 @@ please get in touch with support@openspeedtest.com.
     <div class="centered" style="margin-bottom: 60px">
         <button id="attest_submit" class="getloc" title="Enviar" onclick="updateSaveTestDataBEADChallenge();" style="margin-right: 10px; width: 100px">Submit</button>
     </div>
+    -->
+
   </div>
+
   <div class="Credits">
     <a href="https://datascience.uchicago.edu/"><img style="height: 45px;" src="assets/images/logos/DSILogo1.png" /></a>
     <a href="https://internetequity.uchicago.edu/"><img style="height: 45px;" src="assets/images/logos/IEILogo1.svg" /></a>
@@ -642,7 +643,7 @@ please get in touch with support@openspeedtest.com.
     <p style="font-size: 12px;">© Copyright 2013-2024 OpenSpeedTest™ All Rights Reserved.</p>
 </div>
 <div class="Credits">
-    <p style="font-size: 12px;">Version 1.0.0-rev43</p>
+    <p style="font-size: 12px;">Version 0.0.1</p>
 </div>
   
   <script src="assets/js/app-2.5.4.js"></script>

@@ -75,6 +75,7 @@ color: #880000;
   width: 90vw;
   display: none;
   overflow: hidden;
+  margin: auto;
 }
 .main-Gaugebg {
   fill: none;
