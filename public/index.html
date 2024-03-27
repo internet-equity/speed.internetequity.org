@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Internet Equity Initiative SpeedTest</title>
+  <meta name="description"
+    content="Test your network speed now. OpenSpeedTest™ for the Internet Equity Initiative." />
+  <link href="assets/css/app.css" rel="stylesheet" type="text/css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Internet Equity Initiative SpeedTest" />
+  <meta property="og:description" content="Test your network speed now. OpenSpeedTest™ for the Internet Equity Initiative." />
+  <meta property="og:image" content="assets/images/icons/favicon-32x32.png" />
+  <link rel="canonical" href="https://speed.internetequity.org/" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/favicon-32x32.png">
+  <link rel="shortcut icon" href="assets/images/icons/favicon.ico">
+  <meta name="msapplication-TileColor" content="#ffc40d">
+  <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
+  <meta name="theme-color" content="#ffffff">
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <style>
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 5px 15px 2px 5px;
+        margin-top: 5px;
+        margin-left: 10px;
+        width: calc(100vw - 40px);
+        height: 70px;
+    }
+    .navbar-logo img {
+        height: 40px;
+        padding: 0;
+    }
+    .navbar-title {
+        font-weight: 600;
+        background-color: #880000;
+        background-clip: text;
+        text-shadow: 5px 5px 15px #cccccc;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-family: 'Roboto';
+        text-align: center;
+    }
+    .navbar-links {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        z-index: 1;
+    }
+    .navbar-links li {
+        margin-left: 2rem;
+    }
+    .navbar-links a {
+        color: #333;
+        text-decoration: none;
+    }
+    .navbar-dropdown {
+        position: relative;
+    }
+    .navbar-dropdown i {
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        width: 150px;
+        right: 0;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 0.5rem 0;
+        list-style: none;
+        margin: 0;
+        visibility: hidden;
+    }
+    .dropdown-menu li {
+        margin: 0;
+    }
+    .dropdown-menu li:hover {
+        background-color: #000;
+    }
+    .dropdown-menu a {
+        color: #333;
+        text-decoration: none;
+        display: block;
+        padding: 0.5rem 1rem;
+    }
+    .dropdown-menu a:hover {
+        color: #fff;
+    }
+    .navbar-dropdown:hover .dropdown-menu {
+        visibility: visible;
+    }
+    .beadchallenge {
+        background-color: rgb(243, 243, 243);
+        text-align: center;
+        font-size:14px;
+        font-family: Roboto-Medium, Roboto;
+        font-weight: 500;
+        display: inline-block;
+        width: calc(100vw - 20px);
+        margin-left: 10px;
+        margin-bottom: 10px;
+    }
+    .beadchallenge-banner {
+        text-shadow: 5px 5px 15px #cccccc;
+    }
+    @keyframes updown {
+      0% {
+       transform: translateY(-100%);
+      }
+      50% {
+       transform: translateY(100%);
+      }
+
+      100% {
+       transform: translateY(-100%);
+      }
+    }
+    .collapsible {
+        cursor: pointer;
+    }
+    .collapsible:after {
+        content: '\25BC';
+        color: #880000;
+        font-weight: bold;
+        font-size: 20px;
+        /*float: right;*/
+        margin-left: 5px;
+    }
+    .active, .collapsible:hover {
+        background-color: #ccc;
+    }
+    .active:after {
+        content: "\25B2"; /* Unicode character for "minus" sign (-) */
+    }
+    .content {
+        padding: 0 18px;
+        background-color: white;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+    }
+    p {
+        font-family: Roboto-Medium, Roboto;
+    }
+    input {
+        box-sizing: border-box;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+    }
+    .popup {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        font-family: Roboto-Medium, Roboto;
+        font-style: italic;
+    }
+    .popup .popuptext {
+        visibility: hidden;
+        width: 160px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px 0;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -80px;
+    }
+    /* Popup arrow */
+    .popup .popuptext::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #555 transparent transparent transparent;
+    }
+
+    /* Toggle this class - hide and show the popup */
+    .popup .show {
+        visibility: visible;
+        -webkit-animation: fadeIn 1s;
+        animation: fadeIn 1s;
+    }
+
+    /* Add animation (fade in the popup) */
+    @-webkit-keyframes fadeIn {
+        from {opacity: 0;} 
+        to {opacity: 1;}
+    }
+
+    @keyframes fadeIn {
+        from {opacity: 0;}
+        to {opacity:1 ;}
+    }
+    .getloc {
+        font-family: Roboto;
+        background-color: #880000;
+        border: none;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 12px;
+    }
+    .centered {
+        align-items: center;
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    .title {
+	display: none;
+    }
+    @media (min-width: 600px) {
+      .title {
+        display: block; 
+      }
+    }
+    #loader {
+        border: 12px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 12px solid #444444;
+        width: 70px;
+        height: 70px;
+        animation: spin 1s linear infinite;
+    }
+    .loadercenter {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+     }
+     @keyframes spin {
+        100% {
+           transform: rotate(360deg);
+        }
+     }
+ </style>
+</head>
+<body>
+<div id="loader" class="loadercenter"></div>
+<nav class="navbar">
+    <div class="navbar-logo">
+        <!--img src="./logo.svg" alt="Logo" /-->
+    <img style="height: 50px;" src="assets/images/logos/DSILogo1.png" />
+    </div>
+    <div class="navbar-title"><h3 class="title">Test Your Internet Speed with the OpenSpeedTest</h3></div>
+    <div>
+    <!--ul class="navbar-links">
+        <li class="navbar-dropdown">
+        <a href="#"> <FontAwesomeIcon icon={faBars} size = "1x"/></a>
+        <ul class="dropdown-menu">
+            <li><a href="#">Sign Up</a></li>
+            <li><a href="#">Sign In</a></li>
+            <li><a href="#">About</a></li>
+        </ul>
+        </li>
+    </ul-->
+    <img style="height: 50px;" src="assets/images/logos/IEILogo1.svg" />
+    </div>
+    </nav>
+  <script type="text/javascript">
+/*
+     Official Website : https://OpenSpeedTest.COM | Email: support@openspeedtest.com
+     Developed by : Vishnu | https://Vishnu.Pro | Email : me@vishnu.pro 
+            
+     HTML5 Network Performance Estimation Tool -> [JS,XHR,SVG,HTML,CSS]
+     Started in 2011 and Moved to OpenSpeedTest.COM, Dedicated Project/Domain Name in 2013.
+     SpeedTest Script -> 2013 -> Beta | 2015 -> V1 | 2019 ->V2 | 2020 V2.1 | 2021 V2.12 | 2022 V2.5 & 2.5.3
+     Self-Hosted OpenSpeedTest-Server (iFrame/Nginx) -> 2014. (Managed SelfHosted SpeedTesT Widget)
+     OpenSpeedTest-Server (On-premises) (Fully SelfHosted Apps)
+     [OpenSpeedTest-Server Docker Image] -> V1 2019 | V2 2020 | V2.1 2021 | V2.2 & 2.2.2 2022
+     [Node.js/Electron JS  OpenSpeedTest-Server Desktop Apps] -> 2020 V1 | 2021 V2 & V2.1 | 2.1.1 to 2.1.8 2022
+     [Ionic Android and iOS OpenSpeedTest-Server Mobile Apps] V1.2 to 1.5 2022 
+
+     Download Now -> https://go.openspeedtest.com/Server
+
+     Like this Project? Please Donate NOW & Keep us Alive -> https://go.openspeedtest.com/Donate
+
+     Speed Test by OpenSpeedTest™️ is Free and Open-Source Software (FOSS) with MIT License.
+     Read full license terms @ http://go.openspeedtest.com/License
+
+     If you have any Questions, ideas or Comments Please Send it via -> https://go.openspeedtest.com/SendMessage
+*/
+
+    var saveTestDataBEADChallenge;
+    var stdQueryData;
+
+     // Add or Remove Server --> Automatically choose the one with the least latency
+    var openSpeedTestServerList = [
+        {"ServerName":"Home", "Download":"downloading", "Upload":"upload", "ServerIcon":"DefaultIcon"}
+      ];
+          
+    // Send pings 'pingSamples' times to each Server URL.
+        var pingSamples = 10;
+
+    // 50% samples(Least)/length 1=100% 0.1 = 10%
+        var jitterFinalSample = 0.5; 
+
+    // Set a pingSample dynamically by passing "Ping" or "p" as a URL Parameter.
+        var setPingSamples = true;
+
+    // If Server has not responded within 5 Seconds for any requests we send ('pingSamples' times)
+    // We will show Network Error. You can change the limit here.
+    // In milliseconds, if you need to set 6 seconds. Change the value to 6000.
+        var pingTimeOut = 5000; 
+
+    // Set a PingTimeout dynamically by passing "Out" or "O" as a URL Parameter    
+        var setPingTimeout = true;
+
+    // GET or HEAD  // Other Methods may work. but why?
+        var pingMethod = "GET";
+
+    //Choose Download or Upload from the Server list. If you Prefer Download, change pingMethod to HEAD.
+        var pingFile = "Upload";
+
+    // The amount of garbage data sent to the server in Mb, 30 = 30Mb
+        var ulDataSize = 30;
+
+    // Don't touch it
+        var ulDelay = 300;
+        var dlDelay = 300;
+
+    // Overhead Compensation factor, This is a browser-dependent test, Many Unknowns. Currently, 4%. That is within the margin of error.
+        var upAdjust = 1.04;
+        var dlAdjust = 1.04;
+
+   // You can pass "Clean" or "C" as a URL Parameter and reset the Overhead Compensation factor to Zero or set any value between 0 and 4. 1 = 1% to 4 = 4% 
+   // "clean" will not accept values above 4, so Compensation is limited to a maximum of 4%.
+        var enableClean = true;
+
+    // Minimum 12 Seconds is Expected. 
+        var dlDuration = 12;
+        var ulDuration = 12;
+
+    // 6 is the common limit found on most browsers.
+    // Choose  Number for parallel HTTP connections to Server | Default is 6 
+        var dlThreads = 6;
+        var ulThreads = 6;
+
+    // Allow user to Change default limit of 6 parallel HTTP connections to Server  | Accept values above 1 and max 32
+    // pass "XHR" or "X" as a URL Parameter
+        var setHTTPReq = true;
+
+    // Save Data to a Database
+        var saveData = true;
+        var saveDataURL = "https://83rfidkjpe.execute-api.us-east-2.amazonaws.com/save?data=";
+        var OpenSpeedTestdb = saveDataURL;
+
+    // Allow user to change the default 12 seconds test duration
+    // Pass "Stress" or "S" as a URL Parameter.
+        var stressTest = true;
+
+    // Allow user to select and run one test at a time, download, upload, or ping
+    // Pass "Test" or "T" as a URL Parameter.
+        var selectTest = true;
+
+    // Allow user to select a different server to run a test  
+    // Pass "Host" or "H" ad a  URL Parameter.
+    // Accept only valid HTTP URLs like "http://192.168.1.10:3000" or "https://yourHost.com"
+        var selectServer = true;
+
+    // Start a test Automatically without pressing the start button
+    // You can Delay the test for 'n' seconds by passing any number as a value for Run Keyword. e.g.: "Run=10" or "R=10" to delay the test by 10 Seconds.
+    // Pass "Run" or "R" as a URL Parameter to start a test instantly.
+        var enableRun = true;
+
+    // "Run" will not work if you are already using 'selectTest' "Test" or "T" Keyword.
+
+ 
+function ostOnload() {
+      console.log("OpenSpeedTest.com V2.5.4 Loaded!")
+      console.log("Now Press the Start Button or HIT Enter.")
+      console.log("The secret to living happy is giving happiness. Have a wonderful day.")
+      
+    }
+  
+  var openChannel = "dev";
+
+  function onchange_attest_zipcode(value) {
+        var attest_zipcode = document.getElementById("attest_zipcode");
+       //var isValidZip = /(^\d{5}$)|(^\d{5}\-\d{4}$)/.test(attest_zipcode.value);
+        var isValidZip = /(^\d{5}$)/.test(attest_zipcode.value);
+        if (isValidZip) {
+            console.log("valid zipcode")
+            attest_zipcode.style.color = "";
+            return true;
+        } else {
+            console.log("invalid zipcode")
+            attest_zipcode.style.color = "red";
+        }
+        return false;
+    }
+    function onchange_attest_email(value) {
+        var attest_email = document.getElementById("attest_email");
+        var isValidEmail= attest_email.value.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+        if (isValidEmail) {
+            console.log("valid email")
+            attest_email.style.color = "";
+            return true;
+        } else {
+            console.log("invalid email")
+            attest_email.style.color = "red";
+        }
+        return false;
+    }
+
+    function getSTULocation() {
+	var streetaddr = ""
+	var attest_addr = document.getElementById('attest_address');
+	attest_addr.value = "Searching...";
+        navigator.geolocation.getCurrentPosition((loc)=> {
+            console.log("INFO:"+loc.coords.latitude+" "+loc.coords.longitude);
+			  axios({method: 'GET',
+					    url: `https://83rfidkjpe.execute-api.us-east-2.amazonaws.com/getmyloc2?lat=${loc.coords.latitude}&lng=${loc.coords.longitude}`,
+				 //headers: {'Referrer': 'https://beadchallenge.org'}
+				})
+                 .then((responseText) => {
+		 console.log(JSON.stringify(responseText));
+                 return responseText['data']['address'];
+             })
+             .then(jsonData => {
+	         streetaddr = jsonData
+                 console.log("INFO:"+JSON.stringify(streetaddr));
+	         attest_addr.value = streetaddr;
+             })
+             .catch(error => {
+                 console.log(error);
+		 attest_addr.value = error;
+             })
+             }, (err)=>{
+                 console.log("ERROR:"+err);
+		 attest_addr.value = error;
+             });
+    }
+
+  </script>
+
+<!--
+Speed Test by OpenSpeedTest™️ is Free and Open-Source Software with MIT License.
+
+You can play with the CSS, HTML & SVG files to change the colors or add your support desk info to this page.
+Also, you can add your company logo anywhere on this page. It's FOSS. You can do whatever you see fit.
+
+If you like to make any other modification to this application or need a custom deployment for your organization, 
+please get in touch with support@openspeedtest.com.
+-->
+  <div id="loading_app" class="spinner" >
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+  </div>
+
+  <object style="visibility:hidden" id="OpenSpeedTest-UI" data="assets/images/app.svg" type="image/svg+xml"></object>
+  <div class="beadchallenge collapsible">
+    <h2 title="¿Internet malo o poco confiable? Realice una prueba de velocidad para medir la calidad del servicio de Internet de su hogar. Completar una prueba de velocidad en tres días separados ayudará a garantizar que su vecindario reciba una parte justa de los fondos para mejoras de banda ancha." 
+        class="beadchallenge-banner">
+        <img style="height: 18px;" src="https://beadchallenge.vercel.app/dot_red.png" />
+        Unreliable or poor internet? Take a speed test to measure the quality of your household’s
+        internet service. Completing a speed test on three separate days will help ensure your
+	neighborhood gets its fair share of funding for broadband improvements.
+    </h2>
+    <h2><i>(Click <u style="color: red">here</u> for instructions and to submit your information)</i></h2>
+  </div>
+  <div class="content">
+    <p title="Realice una prueba de velocidad para medir la calidad del servicio de Internet de su hogar. Al completar una prueba de velocidad con esta herramienta, estás participando en el Proceso de Desafío del Programa de Equidad, Acceso e Implementación de Banda Ancha (“BEAD”). Incluya su dirección o código postal y su dirección de correo electrónico cuando envíe sus resultados."
+       style="margin-left: 20px; margin-right:20px; text-align:justify;text-justify: inter-word;">
+        Take a speed test to measure the quality of your household’s internet service.
+        By completing a speed test using this tool, you’re participating in 
+        the Broadband Equity, Access and Deployment (“BEAD”) Program Challenge Process.
+        Please include your address or zip code, and your email address when you submit your results.
+        <br><br>
+        <b>What is a speed test?</b> A speed test measures the speed and quality of your internet at a point in time.
+        <br><br>
+        <b>Why should I take a speed test?</b> Taking a speed test will help ensure that the 
+        Illinois Broadband Map accurately shows where there is and is not quality internet available to residents.
+        <br><br>
+        <b>What is this tool?</b>  By completing a speed test using this tool and sharing your location information,
+        the Internet Equity Initiative will submit internet quality information on your behalf.
+        <br><br>
+        <b>What happens after I submit my speed test?</b> Completing and submitting a speed test with your address
+        is step 1! You’ll need to complete two more speed tests on two separate days to complete the process.
+	To help you out, we will send you email reminders to complete your second and third speed tests.
+	<br><br><u>
+	<b>What is the subscribed speed and how to find it?</b>
+        People undertaking a BEAD challenge must indicate the speed tier of their Internet subscription.
+        This is a specific range of download and upload speeds offered by an Internet Service Provider (ISP) under a particular plan.
+        ISPs typically offer various plans, each with different maximum speeds for downloading and uploading data.
+        To find your internet speed tier, check your latest bill, your ISP's app, or your service agreement.
+	</u><b><br><br>
+	The University of Chicago’s Internet Equity Initiative will be analyzing this 
+	internet performance data on behalf of our partners.
+	By submitting my information I agree to allow University of Chicago Internet Equity Initiative to
+	analyze these data and share with the state broadband office and the ISP I am challenging.
+	<br>We are committed to your privacy and the data from this website will never be sold.
+	</b>
+	<br><br>
+	<b>Speed Test Best Practices:</b>
+	<br> * Take your speed test close to a router.
+	<br> * Plug into a router using an ethernet cord, if you have one.
+	<br> * You can take your speed test during peak usage time (in the evening), but avoid times with others in your households are streaming videos or gaming.
+	<br><br>
+        Questions? Reach out to IEI Team at <b>internetequity@uchicago.edu</b>. 
+        <br><br>
+        Thanks for your help improving internet access in Illinois!
+        <br>&nbsp; &nbsp; &nbsp; - Internet Equity Initiative Team
+    </p>
+    <div class="centered">
+	<select name="orgtype" id="orgtype"
+	       style="margin-left:15px; margin-right:15px; width: 460px">
+              <optgroup label="Type">
+                 <option value="individual">Individual</option>
+                 <option value="organization">Organization</option>
+              </optgroup>
+        </select>
+    </div>
+    <div class="centered" id="orgdiv" style="display: none">
+        <input type="text" id="attest_orgname" cols="35" rows="1" placeholder="Organization Name"
+               style="margin-left:15px; margin-right: 15px; width: 460px"
+	       oninput = 'this.value = this.value.replace(/[,]/g, " ")'>
+        </input>
+    </div>
+   <div class="centered" id="flndiv">
+        <input type="text" id="attest_firstname" cols="35" rows="1" placeholder="First Name"
+               style="margin-left:15px; margin-right: 10px; width: 225px"
+	       oninput = 'this.value = this.value.replace(/[,]/g, " ")'>
+        </input>
+        <input type="text" id="attest_lastname" cols="35" rows="1" placeholder="Last Name"
+	       style="margin-right: 15px; width: 225px"
+	       oninput = 'this.value = this.value.replace(/[,]/g, " ")'>
+        </input>
+    </div>
+    <div class="centered">
+        <input type="email" id="attest_email" cols="30" rows="1" placeholder="Email"
+               style="margin-left:15px; margin-right: 10px; width: 250px"
+               onchange="onchange_attest_email(this.value)"
+               oninput="onchange_attest_email(this.value)">
+        </input>
+        <input type="text" id="attest_zipcode" cols="20" rows="1" placeholder="ZIP Code"
+               style="margin-right: 15px; width: 200px"
+               onchange="onchange_attest_zipcode(this.value)"
+               oninput="onchange_attest_zipcode(this.value)">
+        </input>
+    </div>
+    <div class="centered">
+        <input type="text" id="attest_streetnumber" cols="20" rows="1" placeholder="Street Number"
+               style="margin-left:15px; margin-right: 10px; width: 100px"
+	       oninput = 'this.value = this.value.replace(/[,]/g, " ")'>
+        </input>
+        <input type="text" id="attest_streetname" cols="50" rows="1" placeholder="Street Name"
+	       style="margin-right: 15px; width: 350px"
+	       oninput = 'this.value = this.value.replace(/[,]/g, " ")'>
+        </input>
+    </div>
+
+    <!--div class="centered">
+        <button class="getloc" title="Obtener Mi Ubicación" onclick="getSTULocation()" style="margin-right: 10px; width: 450px">Get My Location &#x25BC;</button>
+    </div-->
+    <!--div class="centered">
+        <textarea id="attest_address" cols="40" rows="3" placeholder="Street Address (please check your address to ensure your house and street number are correct)." style="width: 450px"></textarea>
+    </div-->
+    <div class="centered">
+	<input type="text" id="attest_unitnumber" cols="10" rows="1" placeholder="Unit #"
+               style="width: 100px; margin-left:12px; margin-right: 10px;"
+               oninput = 'this.value = this.value.replace(/[,]/g, " ")'>
+        </input>
+	<input type="text" id="attest_city" cols="10" rows="1" placeholder="City"
+               style="width: 100px; margin-right: 10px;"
+               oninput = 'this.value = this.value.replace(/[,]/g, " ")'>
+        </input>
+	<input type="text" id="attest_state" cols="10" rows="1" placeholder="State"
+               style="width: 100px; margin-right: 15px;"
+               oninput = 'this.value = this.value.replace(/[,]/g, " ")'>
+        </input>
+    </div>
+    <!--div class="centered">
+	<div style="width: 460px; text-align:justify;text-justify: inter-word; background-color: lightgray">
+		<p style="margin-left: 10px; margin-right:10px"><em><b>Please Note:</b> The "Get My Location" buttom works best with the Chrome browser, and it may not be 100% accurate, make sure you have the Location Services enabled. You can also copy the address from <a href="https://il-bead-speed-test-map.netlify.app/" target="_blank">here</a>, and paste it at the "Street Address" field (or enter it manually). Make sure you include the unit number (important).</p></em>
+	</div>
+    </div-->
+    <div class="centered" style="margin-top:30px; text-align:center;">
+        <p 
+          title="Velocidad medida (Mbps):">
+            <div class="popup" onclick="translate_to_spanish()">
+		    <b>Measured Speed (Mbps):</b><br>
+		    (The measured speed is automatically filled)
+            <span class="popuptext" id="attestPopup">Velocidad medida(Mbps):</span>
+            </div>
+        </p>
+    </div>
+    <div class="centered" style="margin-bottom:30px">
+        <input type="number" id="measured_down" cols="15" rows="1" placeholder="Download Speed" style="margin-right: 10px; margin-left: 5px;" readonly></input>
+        <input type="number" id="measured_up"cols="15" rows="1" placeholder="Upload Speed" readonly></input>
+    </div>
+    <div class="centered" style="text-align:center;">
+        <p 
+           title="Doy fe de que me he suscrito a un plan de Internet con:">
+            <div class="popup" onclick="translate_to_spanish()">
+		    <b>I attest that I have <u>subscribed</u> to an Internet plan of (Mbps):</b><br>
+		    (Please see the instructions to understand how to find these numbers)
+            <span class="popuptext" id="attestPopup">Doy fe de que me he suscrito a un plan de Internet con (Mbps):</span>
+            </div>
+	</p>
+    </div>
+    <div class="centered" style="margin-bottom: 30px">
+        <input type="number" id="attest_down" cols="15" rows="1" placeholder="Download Speed" style="margin-right: 10px; margin-left: 5px;"></input>
+        <input type="number" id="attest_up"cols="15" rows="1" placeholder="Upload Speed"></input>
+    </div>
+    <div class="centered" style="margin-bottom: 60px">
+        <button id="attest_submit" class="getloc" title="Enviar" onclick="updateSaveTestDataBEADChallenge();" style="margin-right: 10px; width: 100px">Submit</button>
+    </div>
+  </div>
+  <div class="Credits">
+    <a href="https://datascience.uchicago.edu/"><img style="height: 45px;" src="assets/images/logos/DSILogo1.png" /></a>
+    <a href="https://internetequity.uchicago.edu/"><img style="height: 45px;" src="assets/images/logos/IEILogo1.svg" /></a>
+  </div>
+  <div class="Credits">
+    <a href="https://openspeedtest.com?ref=Self-Hosted&Run">SpeedTest by OpenSpeedTest™</a> is a Free and <a href="https://github.com/openspeedtest/Speed-Test">Open-Source HTML5 Network Speed Test</a> Software.
+    <p style="font-size: 12px;">© Copyright 2013-2024 OpenSpeedTest™ All Rights Reserved.</p>
+</div>
+<div class="Credits">
+    <p style="font-size: 12px;">Version 1.0.0-rev43</p>
+</div>
+  
+  <script src="assets/js/app-2.5.4.js"></script>
+
+  <script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+    
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;   
+        if (content.style.maxHeight){
+          content.style.maxHeight = null;
+        } else {
+          content.style.maxHeight = content.scrollHeight + "px";
+        }
+        window.scrollTo(800, 1400);
+      });
+    }
+    </script>
+    <script>
+        // When the user clicks on div, open the popup
+        function translate_to_spanish() {
+            var popup = document.getElementById("attestPopup");
+            popup.classList.toggle("show");
+        }
+        function updateSaveTestDataBEADChallenge() {
+            saveTestDataBEADChallenge = getSaveTestDataBEADChallenge(stdQueryData);
+
+            if (saveTestDataBEADChallenge.indexOf("undefined") > -1) {
+                alert("ERROR: Please, press 'Start' to initiate a Speed Test first. \n"+
+                      "ERROR: Por favor, presione 'Iniciar' para iniciar primero una prueba de velocidad.");
+                return false;
+
+            }
+            if (!onchange_attest_zipcode(document.getElementById("attest_zipcode").value)) {
+                alert("ERROR: Please, enter a valid Zip Code. \n"+
+                      "ERROR. Por favor, ingrese un código postal válido.");
+                return false;
+            }
+            if (document.getElementById("attest_down").value < 1) {
+                alert("ERROR: Please, enter a valid Download speed attestation.\n"+
+                      "ERROR: Por favor, Introduzca una declaración de velocidad de descarga válida.");
+                return false;
+            }
+            if (document.getElementById("attest_up").value < 1) {
+                alert("ERROR: Please, enter a valid Upload speed attestation.\n"+
+                      "ERROR: Por favor, Ingrese una declaración de velocidad de carga válida.");
+                return false;
+            }
+            if (!document.getElementById("attest_firstname").value) {
+		const selectElement = document.getElementById('orgtype');
+		if (selectElement.value === "individual") {
+                    alert("ERROR: Please, enter your first name.\n"+
+                          "ERROR: Por favor, Ingrese su primero nombre");
+                    return false;
+		}
+            }
+            if (!document.getElementById("attest_lastname").value) {
+		const selectElement = document.getElementById('orgtype');
+		if (selectElement.value === "individual") {
+  		     alert("ERROR: Please, enter your last name.\n"+
+                           "ERROR: Por favor, Ingrese su nombre de la familia");
+                     return false;
+		}
+            }
+	    if  (!document.getElementById("attest_orgname").value) {
+		const selectElement = document.getElementById('orgtype');
+                if (selectElement.value != "individual") {
+                     alert("ERROR: Please, enter your last name.\n"+
+                           "ERROR: Por favor, Ingrese su nombre de la familia");
+                     return false;
+                }
+	    }
+            document.getElementById("loader").style.visibility = "visible"; 
+            axios.post(OpenSpeedTestdb, saveTestDataBEADChallenge,
+                {headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }}).then(()=>{
+		document.getElementById("loader").style.visibility = "hidden"; 
+                alert("Congratulations: your data has been successfully submitted!\n"+
+                      "Please, check and confirm the data on the email you're about to receive today.\n"+
+                      "\n"+
+                      "¡Felicitaciones: sus datos han sido enviados exitosamente!\n"+
+                      "Por favor, revisa y confirma los datos del email que estás a punto de recibir hoy.\n"
+                      );
+		var attest_button = document.getElementById("attest_submit")
+		attest_button.disabled = true;
+		attest_button.style.backgroundColor = "gray";
+
+            })
+            .catch((error)=>{
+		document.getElementById("loader").style.visibility = "hidden"; 
+                alert("ERROR: failed to send data ("+error+")");
+            })           
+        }
+        </script>
+        <script>
+           document.onreadystatechange = function () {
+              if (document.readyState !== "complete") {
+                 document.getElementById("loader").style.visibility = "hidden"; 
+              }
+           }          
+        </script>
+	<script>
+	   const selectElement = document.getElementById('orgtype');
+           const orgDivElement = document.getElementById('orgdiv');
+
+           selectElement.addEventListener('change', function() {
+               if (selectElement.value === 'individual') {
+                  orgDivElement.style.display = 'none';
+               } else {
+                  orgDivElement.style.display = 'flex';
+               }
+           });
+	</script>
+</body>
+</html>
