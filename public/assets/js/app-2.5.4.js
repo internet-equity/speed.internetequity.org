@@ -7,6 +7,7 @@
     If you have any Questions, ideas or Comments Please Send it via -> https://go.openspeedtest.com/SendMessage
 */
 
+/* form logic
 function getSaveTestDataBEADChallenge(stdQueryData){
   var attest_email = document.getElementById("attest_email").value;
   var attest_zipcode = document.getElementById("attest_zipcode").value;
@@ -23,10 +24,13 @@ function getSaveTestDataBEADChallenge(stdQueryData){
   var attest_unitnumber = btoa(document.getElementById("attest_unitnumber").value);
   var attest_orgname = btoa(document.getElementById("attest_orgname").value);
   //save extra data for BEAD Challenge
-  saveTestDataBEADChallenge = "https://beadchallenge.org?" + stdQueryData + "&email=" + attest_email + "&zipcode=" + attest_zipcode + "&attest_down=" + attest_down + "&attest_up=" + attest_up + "&address=" + attest_address + "&firstname=" + attest_firstname + "&lastname=" + attest_lastname + "&attest_unit=" + attest_unitnumber + "&attest_orgname=" + attest_orgname ;
+  // fixme: this should just be the data
+  var saveTestDataBEADChallenge = "https://beadchallenge.org?" + stdQueryData + "&email=" + attest_email + "&zipcode=" + attest_zipcode + "&attest_down=" + attest_down + "&attest_up=" + attest_up + "&address=" + attest_address + "&firstname=" + attest_firstname + "&lastname=" + attest_lastname + "&attest_unit=" + attest_unitnumber + "&attest_orgname=" + attest_orgname ;
   saveTestDataBEADChallenge = encodeURI(saveTestDataBEADChallenge);
   return saveTestDataBEADChallenge;
 }
+*/
+
 window.onload = function() {
   var appSVG = document.getElementById("OpenSpeedTest-UI");
   appSVG.parentNode.replaceChild(appSVG.contentDocument.documentElement, appSVG);
@@ -583,7 +587,7 @@ window.onload = function() {
     var downloadTimeing;
     var downloadTime;
     var uploadTime;
-    //var stdQueryData;
+    // var stdQueryData;  // made global for purposes of currently-disabled form
     var saveTestData;
     var stop = 0;
     function reSett() {
@@ -1039,16 +1043,25 @@ window.onload = function() {
             stdQueryData = "&d=" + downloadSpeed.toFixed(3) + "&u=" + uploadSpeed.toFixed(3) + "&p=" + pingEstimate + "&j=" + jitterEstimate + "&dd=" + (dataUsedfordl / 1048576).toFixed(3) + "&ud=" + (dataUsedforul / 1048576).toFixed(3) + "&ua=" + userAgentString;
             saveTestData = "https://" + myname.toLowerCase() + com + "/results/show.php?" + stdQueryData;
             saveTestData = encodeURI(saveTestData);
+
+            /* low speed alert
             if (downloadSpeed < 100.0 || uploadSpeed < 20.0 || pingEstimate > 100.0) {
               alert("Low speed or latency has been detected. Please scroll down, "+
 		    "enter your information and current subscription speeds, and submit."+
 		    "Don’t forget to complete three speed tests over three days to make sure your measurements are counted!"+
                     " - The Internet Equity Initiative Team");
             }
+            */
+
+            // persist openspeedtest data
+
+            /* form logic
             document.getElementById("measured_down").value = downloadSpeed.toFixed(2);
             document.getElementById("measured_up").value = uploadSpeed.toFixed(2);
-            //preserve openspeedtest data
-            saveTestDataBEADChallenge = getSaveTestDataBEADChallenge(stdQueryData);
+
+            stdQueryData = getSaveTestDataBEADChallenge(stdQueryData);
+            */
+
             var circleSVG2 = document.getElementById("resultsData");
             circleSVG2.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", saveTestData);
             circleSVG2.setAttribute("target", "_blank");
@@ -1448,7 +1461,7 @@ window.onload = function() {
         logData = "r=l" + "&d=" + downloadSpeed + "&u=" + uploadSpeed + "&dd=" + dataUsedfordl / 1048576 + "&ud=" + dataUsedforul / 1048576 + "&p=" + pingEstimate + "&do=" + myhostName + "&S=" + key + "&sip=" + TestServerip + "&jit=" + jitterEstimate + "&ua=" + userAgentString;
       }
       if (auth == 5) {
-        logData = saveTestDataBEADChallenge;
+        logData = stdQueryData;
       }
       if (auth == 6) {
         logData = "r=s";

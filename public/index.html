@@ -18,7 +18,7 @@
   <meta name="msapplication-TileColor" content="#ffc40d">
   <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
   <meta name="theme-color" content="#ffffff">
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
   <style>
     .navbar {
         display: flex;
@@ -266,8 +266,7 @@
 <div id="loader" class="loadercenter"></div>
 <nav class="navbar">
     <div class="navbar-logo">
-        <!--img src="./logo.svg" alt="Logo" /-->
-    <img style="height: 50px;" src="assets/images/logos/DSILogo1.png" />
+      <img style="height: 50px;" src="assets/images/logos/DSILogo1.png" />
     </div>
     <div class="navbar-title"><h3 class="title">Test Your Internet Speed with the OpenSpeedTest</h3></div>
     <div>
@@ -285,8 +284,7 @@
     </div>
     </nav>
   <script type="text/javascript">
-      var saveTestDataBEADChallenge;
-      var stdQueryData;
+      var stdQueryData;  // speedTest variable made global for purposes of optional form
 
       function getApiUri () {
           switch (window.location.hostname) {
@@ -294,7 +292,8 @@
               case '0.0.0.0':
               case 'localhost':
               case '127.0.0.1':
-                  return null;
+                  var searchParams = new URLSearchParams(window.location.search);
+                  return searchParams.get('apiUri') || null;
               default:
                   return window.location.protocol + '//api.' + window.location.host + '/speedtest/';
           }
@@ -406,15 +405,17 @@
     // "Run" will not work if you are already using 'selectTest' "Test" or "T" Keyword.
 
  
-function ostOnload() {
+    function ostOnload() {
       console.log("OpenSpeedTest.com V2.5.4 Loaded!")
       console.log("Now Press the Start Button or HIT Enter.")
       console.log("The secret to living happy is giving happiness. Have a wonderful day.")
-      
     }
-  
-  var openChannel = "dev";
+      
+    var openChannel = "dev";
+  </script>
 
+  <!-- form logic
+  <script>
   function onchange_attest_zipcode(value) {
         var attest_zipcode = document.getElementById("attest_zipcode");
        //var isValidZip = /(^\d{5}$)|(^\d{5}\-\d{4}$)/.test(attest_zipcode.value);
@@ -442,11 +443,16 @@ function ostOnload() {
         }
         return false;
     }
+  </script>
+  -->
 
+  <!-- form logic: optional/experimental
+  <script>
     function getSTULocation() {
-	var streetaddr = ""
-	var attest_addr = document.getElementById('attest_address');
-	attest_addr.value = "Searching...";
+        var streetaddr = ""
+        var attest_addr = document.getElementById('attest_address');
+        attest_addr.value = "Searching...";
+
         navigator.geolocation.getCurrentPosition((loc)=> {
             console.log("INFO:"+loc.coords.latitude+" "+loc.coords.longitude);
 			  axios({method: 'GET',
@@ -471,8 +477,8 @@ function ostOnload() {
 		 attest_addr.value = error;
              });
     }
-
   </script>
+  -->
 
 <!--
 Speed Test by OpenSpeedTest™️ is Free and Open-Source Software with MIT License.
@@ -648,31 +654,60 @@ please get in touch with support@openspeedtest.com.
   
   <script src="assets/js/app-2.5.4.js"></script>
 
+  <!-- loader overlay -->
   <script>
-    var coll = document.getElementsByClassName("collapsible");
-    var i;
-    
-    for (i = 0; i < coll.length; i++) {
-      coll[i].addEventListener("click", function() {
-        this.classList.toggle("active");
-        var content = this.nextElementSibling;   
-        if (content.style.maxHeight){
-          content.style.maxHeight = null;
-        } else {
-          content.style.maxHeight = content.scrollHeight + "px";
+     document.onreadystatechange = function () {
+        if (document.readyState !== "complete") {
+           document.getElementById("loader").style.visibility = "hidden"; 
         }
-        window.scrollTo(800, 1400);
-      });
-    }
+     }          
+  </script>
+
+  <!-- collapsible div logic
+  <script>
+      (function () {
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        
+        for (i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;   
+            if (content.style.maxHeight){
+              content.style.maxHeight = null;
+            } else {
+              content.style.maxHeight = content.scrollHeight + "px";
+            }
+            window.scrollTo(800, 1400);
+          });
+        }
+      })();
     </script>
+    -->
+
+    <!-- form logic
     <script>
+        (function () {
+           const selectElement = document.getElementById('orgtype');
+               const orgDivElement = document.getElementById('orgdiv');
+
+           selectElement.addEventListener('change', function() {
+               if (selectElement.value === 'individual') {
+                  orgDivElement.style.display = 'none';
+               } else {
+                  orgDivElement.style.display = 'flex';
+               }
+           });
+       })();
+
         // When the user clicks on div, open the popup
         function translate_to_spanish() {
             var popup = document.getElementById("attestPopup");
             popup.classList.toggle("show");
         }
         function updateSaveTestDataBEADChallenge() {
-            saveTestDataBEADChallenge = getSaveTestDataBEADChallenge(stdQueryData);
+            // fixme: shouldn't have to do this (again), rather just use/check stdQueryData
+            var saveTestDataBEADChallenge = getSaveTestDataBEADChallenge(stdQueryData);
 
             if (saveTestDataBEADChallenge.indexOf("undefined") > -1) {
                 alert("ERROR: Please, press 'Start' to initiate a Speed Test first. \n"+
@@ -742,24 +777,6 @@ please get in touch with support@openspeedtest.com.
             })           
         }
         </script>
-        <script>
-           document.onreadystatechange = function () {
-              if (document.readyState !== "complete") {
-                 document.getElementById("loader").style.visibility = "hidden"; 
-              }
-           }          
-        </script>
-	<script>
-	   const selectElement = document.getElementById('orgtype');
-           const orgDivElement = document.getElementById('orgdiv');
-
-           selectElement.addEventListener('change', function() {
-               if (selectElement.value === 'individual') {
-                  orgDivElement.style.display = 'none';
-               } else {
-                  orgDivElement.style.display = 'flex';
-               }
-           });
-	</script>
+        -->
 </body>
 </html>
