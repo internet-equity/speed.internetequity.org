@@ -14,6 +14,7 @@ resource "aws_s3_bucket_public_access_block" "site" {
 resource "aws_s3_bucket_policy" "public" {
   bucket = aws_s3_bucket.site.id
   policy = data.aws_iam_policy_document.public.json
+  depends_on = [aws_s3_bucket_public_access_block.site]
 }
 
 data "aws_iam_policy_document" "public" {

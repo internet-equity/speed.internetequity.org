@@ -1,10 +1,19 @@
 terraform {
+  cloud {
+    organization = "internet-equity"
+
+    workspaces {
+      name = "beta-speed-internetequity-org"
+    }
+  }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
   }
+
   required_version = ">= 1.1.5"
 }
 
