@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  AWS SAM CLI configuration for local-only development of Speed Test data API
+
+Resources:
+  speedtest:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: api.speedtest.main
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: >-
+        Endpoint to persist completed speedtest results
+      Environment:
+        Variables:
+          ALLOWED_HOSTS: 127.0.0.1:3000
+          STORE_PATH: file:///tmp/speedtest/
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /speedtest/
+            Method: post
