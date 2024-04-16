@@ -17,10 +17,13 @@ Resources:
       Environment:
         Variables:
           ALLOWED_HOSTS: 127.0.0.1:3000
+          ALLOWED_ORIGIN: 127.0.0.1:3000
           STORE_PATH: file:///tmp/speedtest/
+          # PYTHONPATH necessary to make path same locally (in subdir) as in lambda
+          PYTHONPATH: ./api/
       Events:
         Api:
           Type: HttpApi
           Properties:
-            Path: /speedtest/
+            Path: /speedtest
             Method: post

@@ -1,4 +1,4 @@
-import base64
+"""API speedtest endpoint"""
 import boto3
 import json
 import os
@@ -6,50 +6,45 @@ import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
+from lib import cors, http_context, response
+
 
 ALLOWED_METHODS = {'POST'}
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split()
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').lower().split()
 
-ALLOWED_PATHS = os.getenv('ALLOWED_PATHS', '').split() or {'/speedtest/'}
+ALLOWED_ORIGIN = os.getenv('ALLOWED_ORIGIN', '').strip() or None
+
+ALLOWED_PATHS = os.getenv('ALLOWED_PATHS', '').split() or {'/speedtest'}
 
 STORE_PATH = os.getenv('STORE_PATH', '').strip()  # either s3://... or file://...
 
 
-def main(event, _context):
-    headers = event.get('headers', {})
+@http_context
+@cors(ALLOWED_ORIGIN)
+def main(request, context):
+    """Persist a speedtest results record"""
+    if request.headers.get('host').lower() not in ALLOWED_HOSTS:
+        return response.response_400()
 
-    requestContext = event.get('requestContext', {})
-    request = requestContext.get('http', {})
+    if request.path not in ALLOWED_PATHS:
+        return response.response_404()
 
-    if headers.get('Host') not in ALLOWED_HOSTS:
-        return response_400()
+    if request.method not in ALLOWED_METHODS:
+        return response.response_405()
 
-    if request.get("path") not in ALLOWED_PATHS:
-        return response_404()
-
-    if request.get('method') not in ALLOWED_METHODS:
-        return response_405()
-
-    origin = headers.get('Origin')
-    ip_address = request.get('sourceIp')
-    user_agent = request.get('userAgent')
-
-    raw = event.get("body", '')
-    form = base64.b64decode(raw) if event.get("isBase64Encoded") else raw
+    origin = request.headers.get('origin')
 
     try:
         # we don't expect multivalue items so won't use parse_qs
-        body = dict(urllib.parse.parse_qsl(form))
+        measurement = dict(urllib.parse.parse_qsl(request.body))
     except ValueError:
-        print(f"ERROR: could not parse body from {ip_address} to {origin}: {form}")
-        return response_400("bad encoding")
-
-    request_time = requestContext.get('time', '')
+        print(f"ERROR: could not parse body from {request.sourceIp} at {origin}: {request.body}")
+        return response.response_400("bad encoding")
 
     try:
-        request_datetime = datetime.strptime(request_time, '%d/%b/%Y:%H:%M:%S %z')
-    except ValueError:
+        request_datetime = datetime.strptime(context.time, '%d/%b/%Y:%H:%M:%S %z')
+    except (TypeError, ValueError):
         request_datetime = None
 
     operation_datetime = datetime.now(timezone.utc)
@@ -57,23 +52,23 @@ def main(event, _context):
     try:
         data = {
             'origin': origin,
-            'ip_address': ip_address,
-            'user_agent': user_agent,
+            'ip_address': request.sourceIp,
+            'user_agent': request.userAgent,
             'data': {
-                'download': float(body['d']),
-                'upload': float(body['u']),
-                'latency': float(body['p']),
-                'jitter': float(body['j']),
-                'download_size': float(body['dd']),
-                'upload_size': float(body['ud']),
-                'user_agent': body['ua'],
+                'download': float(measurement['d']),
+                'upload': float(measurement['u']),
+                'latency': float(measurement['p']),
+                'jitter': float(measurement['j']),
+                'download_size': float(measurement['dd']),
+                'upload_size': float(measurement['ud']),
+                'user_agent': measurement['ua'],
             },
-            'datetime': request_datetime.strftime('%Y-%m-%dT%H:%M:%S%z'),
+            'datetime': request_datetime and request_datetime.strftime('%Y-%m-%dT%H:%M:%S%z'),
         }
     except KeyError:
-        return response_400("missing parameters")
+        return response.response_400("missing parameters")
     except ValueError:
-        return response_400("unexpected values")
+        return response.response_400("unexpected values")
 
     result_name = f'result-{operation_datetime:%Y%m%dT%H%M%S}-speedtest.json'
 
@@ -96,86 +91,9 @@ def main(event, _context):
             )
         except Exception as exc:
             print(f"ERROR: {exc}")
-            return response_503()
+            return response.response_503()
     else:
         print(f"ERROR: bad configuration value for STORE_PATH: {STORE_PATH!r}")
-        return response_500()
+        return response.response_500()
 
-    return response_201()
-
-
-def response_200(message=None):
-    return {
-        "statusCode": 200,
-        "body": json.dumps({
-            'error': False,
-            'status': 'OK',
-            'message': message,
-        }),
-    }
-
-
-def response_201(message=None):
-    return {
-        "statusCode": 201,
-        "body": json.dumps({
-            'error': False,
-            'status': 'Created',
-            'message': message,
-        }),
-    }
-
-
-def response_400(message=None):
-    return {
-        "statusCode": 400,
-        "body": json.dumps({
-            'error': True,
-            'status': 'Bad Request',
-            'message': message,
-        }),
-    }
-
-
-def response_404(message=None):
-    return {
-        "statusCode": 404,
-        "body": json.dumps({
-            'error': True,
-            'status': 'Not Found',
-            'message': message,
-        }),
-    }
-
-
-def response_405(message=None):
-    return {
-        "statusCode": 405,
-        "body": json.dumps({
-            'error': True,
-            'status': 'Method Not Allowed',
-            'message': message,
-        }),
-    }
-
-
-def response_500(message=None):
-    return {
-        "statusCode": 500,
-        "body": json.dumps({
-            'error': True,
-            'status': 'Internal Server Error',
-            'message': message,
-        }),
-    }
-
-
-def response_503(message=None):
-    return {
-        "statusCode": 503,
-        "body": json.dumps({
-            'error': True,
-            'status': 'Service Unavailable',
-            'message': message,
-        }),
-    }
+    return response.response_201()

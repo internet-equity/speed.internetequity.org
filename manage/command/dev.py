@@ -194,7 +194,7 @@ class Dev(argcmdr.Local):
         ]
 
         print('app index will be available at:', end='\n\n')
-        print('  http://127.0.0.1:3000/index.html?apiUri=http://127.0.0.1:3000/speedtest/',
+        print('  http://127.0.0.1:3000/index.html?apiUri=http://127.0.0.1:3000/speedtest',
               end='\n\n')
 
         print('results will be available within the Docker container at:', end='\n\n')
