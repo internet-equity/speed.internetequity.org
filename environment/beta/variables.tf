@@ -3,6 +3,17 @@ variable "bucket_name" {
   type = string
 }
 
+variable "data_bucket_name" {
+  description = "Name to assign to S3 bucket to which data is persisted"
+  type = string
+}
+
+variable "app_short" {
+  description = "Short name to apply to the infrastructure stack to differentiate resources which require unique names but which may be shared between environments"
+  default = ""
+  type = string
+}
+
 variable "code_name" {
   description = "Name to apply to the infrastructure stack to differentiate resources such as CloudFront Functions which require unique names"
   default = ""

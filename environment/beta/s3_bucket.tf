@@ -1,3 +1,7 @@
+resource "aws_s3_bucket" "api" {
+  bucket        = var.data_bucket_name
+}
+
 resource "aws_s3_bucket" "site" {
   bucket        = var.bucket_name
 }

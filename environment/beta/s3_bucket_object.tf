@@ -20,5 +20,5 @@ resource "aws_s3_object" "html" {
   source                  = each.value.source_path
 
   content_type            = each.value.content_type
-  etag                    = each.value.digests.md5
+  source_hash             = each.value.digests.md5
 }
