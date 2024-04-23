@@ -4,20 +4,37 @@ data "archive_file" "api_package" {
   output_path = "${path.root}/.terraform/tmp/api/api.zip"
 }
 
+data "archive_file" "dummy_package" {
+  type = "zip"
+
+  # lambda demands we deploy *something* and will not accept an empty archive
+  # nor an empty file
+  source_content = "# see layer for code: ${aws_lambda_layer_version.api.arn}"
+  source_content_filename = "dummy.py"
+
+  output_path = "${path.root}/.terraform/tmp/api/dummy.zip"
+}
+
+resource "aws_lambda_layer_version" "api" {
+  description = "Library for endpoint to persist completed speedtest results"
+  layer_name = var.app_short != "" ? "speedtest-api_${var.app_short}" : "speedtest-api"
+  filename = data.archive_file.api_package.output_path
+  source_code_hash = data.archive_file.api_package.output_base64sha256
+}
 
 resource "aws_lambda_function" "api" {
-  description = "Endpoint to persist completed speedtest results"
-  function_name = var.app_short != "" ? "speedtest-api_${var.app_short}" : "speedtest-api"
+  description = "Endpoint to persist completed speedtest results BETA"
+  function_name = var.code_name != "" ? "speedtest-api_${var.code_name}" : "speedtest-api"
   handler = "speedtest.main"
   runtime = "python3.10"
 
   memory_size = 128
   timeout = 30
 
-  filename = data.archive_file.api_package.output_path
-  source_code_hash = data.archive_file.api_package.output_base64sha256
+  filename = data.archive_file.dummy_package.output_path
+  source_code_hash = data.archive_file.dummy_package.output_base64sha256
 
-  publish = true
+  layers = [aws_lambda_layer_version.api.arn]
 
   role = aws_iam_role.lambda_executor.arn
 
